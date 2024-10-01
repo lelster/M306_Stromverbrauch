@@ -10,7 +10,7 @@ class MeterData:
 
     def add_reading(self, obis: str, value: float) -> None:
         """Docstring"""
-        self.data[obis] = value
+        self.data[obis] = value #round(value, 3)
 
     def get_reading(self, obis: str) -> float:
         """Docstring"""
