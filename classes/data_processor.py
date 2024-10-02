@@ -7,7 +7,7 @@ from classes.consumtion_data import ConsumptionEntry, ConsumptionData
 class DataProcessor:
     """Docstring"""
     @staticmethod
-    def match_data(sensor_id: str, sdat_data: list[ConsumptionData], date: datetime = None) -> dict:
+    def get_data(sensor_id: str, sdat_data: list[ConsumptionData], date: datetime = None) -> dict:
         """Docstring"""
         combined_data = [i for i in sdat_data if i.document_id == sensor_id]
         date_combined_data = [i for i in combined_data if i.end_date.year == date.year and i.end_date.month == date.month] if date != None else None
