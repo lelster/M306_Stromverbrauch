@@ -17,7 +17,7 @@ def main():
 
     exporter = Exporter()
 
-    exporter.export_to_json("./data/public/json", dataConsumption, dataMeter)
+    exporter.export_to_csv("./data/public/csv", dataConsumption, dataMeter)
     print("cum")
 
 

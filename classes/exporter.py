@@ -1,5 +1,6 @@
 """Class"""
 # Import Local Classes
+import csv
 import json
 import os
 from datetime import datetime
@@ -18,8 +19,42 @@ class Exporter:
 
     @staticmethod
     def export_to_csv(file_path: str, consumption_data: list[ConsumptionData], meter_data: list[MeterData]) -> bool:
-        """Export data to CSV format (not implemented yet)."""
-        return False
+        """Export consumption and meter data to CSV files."""
+        try:
+            if not os.path.exists(file_path):
+                os.makedirs(file_path)
+
+            # Export Consumption Data to CSV
+            consumption_file_path = os.path.join(file_path, "consumption_data.csv")
+            with open(consumption_file_path, "w", newline="") as file:
+                writer = csv.writer(file, delimiter=';')
+                # Write headers for consumption data
+                writer.writerow(["document_id", "start_date", "end_date", "timestamp", "volume"])
+                # Write consumption data rows
+                for data in consumption_data:
+                    for entry in data.data:
+                        writer.writerow([data.document_id,
+                                         data.start_date.isoformat(),
+                                         data.end_date.isoformat(),
+                                         entry.timestamp.isoformat(),
+                                         entry.volume])
+
+            meter_file_path = os.path.join(file_path, "meter_data.csv")
+            with open(meter_file_path, "w", newline="") as file:
+                writer = csv.writer(file, delimiter=';')
+                # Write headers for meter data
+                writer.writerow(["timestamp", "obis_code", "reading"])
+                # Write meter data rows
+                for meter in meter_data:
+                    for obis_code, reading in meter.data.items():
+                        writer.writerow([meter.timestamp.isoformat(),  # Format the timestamp
+                                         obis_code,
+                                         reading])  # Write the OBIS code and reading
+
+            return True
+        except Exception as e:
+            print(f"Error writing CSV files: {e}")
+            return False
 
     @staticmethod
     def export_to_json(file_path: str, consumption_data: list[ConsumptionData], meter_data: list[MeterData]) -> bool:
