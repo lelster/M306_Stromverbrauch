@@ -2,8 +2,8 @@
 # Import Local Classes
 import json
 import os
-from meter_data import MeterData
-from consumtion_data import ConsumptionData, ConsumptionEntry
+from classes.meter_data import MeterData
+from classes.consumtion_data import ConsumptionData, ConsumptionEntry
 
 
 class Exporter:
