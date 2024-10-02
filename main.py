@@ -27,6 +27,7 @@ def export(export_type: str, dataConsumption: list[ConsumptionData], dataMeter: 
         print(f"Export type {export_type} is not supported.")
 
 
+
 def main():
     print("reading data...")
     dataConsumption, dataMeter = read()
