@@ -10,7 +10,7 @@ class DataProcessor:
     def match_data(sensor_id: str, sdat_data: list[ConsumptionData], date: datetime = None) -> dict:
         """Docstring"""
         combined_data = [i for i in sdat_data if i.document_id == sensor_id]
-        date_combined_data = [i for i in combined_data if i.timestamp.year == date.year and i.timestamp.month == date.month] if date != None else None
+        date_combined_data = [i for i in combined_data if i.end_date.year == date.year and i.end_date.month == date.month] if date != None else None
         if date_combined_data is None:
             result = combined_data
         else:
@@ -27,9 +27,3 @@ class DataProcessor:
         total_consumption = 0.0
         # TODO: Calculate total consumtion
         return total_consumption
-
-    @staticmethod
-    def combine_esl_data(data: list[MeterData]) -> list[MeterData]:
-        """Docstring"""
-        # TODO: combine esl data
-        return None
