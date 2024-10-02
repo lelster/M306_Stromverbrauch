@@ -24,13 +24,10 @@ class Exporter:
             if not os.path.exists(file_path):
                 os.makedirs(file_path)
 
-            # Export Consumption Data to CSV
-            consumption_file_path = os.path.join(file_path, "consumption_data.csv")
+            consumption_file_path = os.path.join(file_path, f"consumption_data{(datetime.now()).strftime('%Y_%m_%d(%H_%M_%S)')}.csv")
             with open(consumption_file_path, "w", newline="") as file:
                 writer = csv.writer(file, delimiter=';')
-                # Write headers for consumption data
                 writer.writerow(["document_id", "start_date", "end_date", "timestamp", "volume"])
-                # Write consumption data rows
                 for data in consumption_data:
                     for entry in data.data:
                         writer.writerow([data.document_id,
@@ -39,7 +36,7 @@ class Exporter:
                                          entry.timestamp.isoformat(),
                                          entry.volume])
 
-            meter_file_path = os.path.join(file_path, "meter_data.csv")
+            meter_file_path = os.path.join(file_path, f"meter_data_{(datetime.now()).strftime('%Y_%m_%d(%H_%M_%S)')}.csv")
             with open(meter_file_path, "w", newline="") as file:
                 writer = csv.writer(file, delimiter=';')
                 # Write headers for meter data
@@ -63,8 +60,8 @@ class Exporter:
             if not os.path.exists(file_path):
                 os.makedirs(file_path)
 
-            consumption_file_path = os.path.join(file_path, "consumption_data.json")
-            meter_file_path = os.path.join(file_path, "meter_data.json")
+            consumption_file_path = os.path.join(file_path, f"consumption_data{(datetime.now()).strftime('%Y_%m_%d(%H_%M_%S)')}.json")
+            meter_file_path = os.path.join(file_path, f"meter_data{(datetime.now()).strftime('%Y_%m_%d(%H_%M_%S)')}.json")
 
             with open(meter_file_path, "w") as file:
                 json.dump([x.__dict__ for x in meter_data], file, default=Exporter.datetime_converter, indent=4)
