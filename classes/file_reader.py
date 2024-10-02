@@ -1,12 +1,11 @@
 """Class"""
 import os
-from datetime import datetime
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
 # Import Local Classes
-from meter_data import MeterData
-from consumtion_data import ConsumptionEntry, ConsumptionData
+from classes.meter_data import MeterData
+from classes.consumtion_data import ConsumptionEntry, ConsumptionData
 
 class FileReader:
     """FileReader class to read ESL files and parse meter data."""
@@ -191,7 +190,7 @@ class FileReader:
 
 if __name__ == "__main__":
     reader = FileReader()
-    data: list[MeterData] = reader.read_esl_files("C:\\Users\\KSH\\Downloads\\M306\\M306_Stromverbrauch\\data\\ESL-Files\\")
-    #data: list[ConsumptionData] = reader.read_sdat_files("C:\\Users\\KSH\\Downloads\\M306\\M306_Stromverbrauch\\data\\SDAT-Files\\")
+    #data: list[MeterData] = reader.read_esl_files("C:\\Users\\KSH\\Downloads\\M306\\M306_Stromverbrauch\\data\\ESL-Files\\")
+    data: list[ConsumptionData] = reader.read_sdat_files("C:\\Users\\KSH\\Downloads\\M306\\M306_Stromverbrauch\\data\\SDAT-Files\\")
     for i in data:
         print(i)

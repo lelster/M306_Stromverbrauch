@@ -1,7 +1,7 @@
 """Class"""
 # Import Local Classes
-from meter_data import MeterData
-from consumtion_data import ConsumptionData
+from classes.meter_data import MeterData
+from classes.consumtion_data import ConsumptionEntry, ConsumptionData
 
 class DataVisualizer:
     """Docstring"""
