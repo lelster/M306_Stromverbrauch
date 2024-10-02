@@ -44,7 +44,7 @@ class Exporter:
                 # Write meter data rows
                 for meter in meter_data:
                     for obis_code, reading in meter.data.items():
-                        writer.writerow([meter.timestamp.isoformat(),  # Format the timestamp
+                        writer.writerow([str(int(meter.timestamp.timestamp())),  # Format the timestamp
                                          obis_code,
                                          reading])  # Write the OBIS code and reading
 
