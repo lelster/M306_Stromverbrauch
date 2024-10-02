@@ -151,16 +151,14 @@ class FileReader:
             if resolution_value_elem is None or resolution_unit_elem is None:
                 return None
             resolution_value = int(resolution_value_elem.text)
-            resolution_unit = resolution_unit_elem.text  # Assume 'MIN' for minutes
+            resolution_unit = resolution_unit_elem.text
 
-            # Convert resolution to timedelta
             if resolution_unit == 'MIN':
                 resolution_timedelta = timedelta(minutes=resolution_value)
             elif resolution_unit == 'H':
                 resolution_timedelta = timedelta(hours=resolution_value)
             else:
-                # Handle other units if necessary
-                resolution_timedelta = timedelta(minutes=resolution_value)  # Default to minutes
+                resolution_timedelta = timedelta(minutes=resolution_value)
 
             observations = metering_data.findall('rsm:Observation', ns)
             if not observations:
@@ -187,10 +185,3 @@ class FileReader:
         except Exception as e:
             print(f"An error occurred while parsing the file {filepath}: {e}")
             return None
-
-if __name__ == "__main__":
-    reader = FileReader()
-    #data: list[MeterData] = reader.read_esl_files("C:\\Users\\KSH\\Downloads\\M306\\M306_Stromverbrauch\\data\\ESL-Files\\")
-    data: list[ConsumptionData] = reader.read_sdat_files("C:\\Users\\KSH\\Downloads\\M306\\M306_Stromverbrauch\\data\\SDAT-Files\\")
-    for i in data:
-        print(i)
