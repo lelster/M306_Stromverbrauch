@@ -12,8 +12,13 @@ def main():
     Main Workflow
     """
     reader = FileReader()
-    data: list[ConsumptionData] = reader.read_sdat_files("C:\\Users\\Leonardo Mocci\\Desktop\\XML-Files\\SDAT-Files")
-    data: list[MeterData] = reader.read_esl_files("C:\\Users\\Leonardo Mocci\\Desktop\\XML-Files\\ESL-Files")
+    dataConsumption: list[ConsumptionData] = reader.read_sdat_files("./data/public/SDAT-Files")
+    dataMeter: list[MeterData] = reader.read_esl_files("./data/public/ESL-Files")
+
+    exporter = Exporter()
+
+    exporter.export_to_json("./data/public/json", dataConsumption, dataMeter)
+    print("cum")
 
 
 if __name__ == "__main__":

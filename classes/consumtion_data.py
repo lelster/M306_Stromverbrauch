@@ -7,6 +7,13 @@ class ConsumptionEntry:
         self.volume = volume
         self.timestamp = timestamp
 
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization."""
+        return {
+            'volume': self.volume,
+            'timestamp': self.timestamp.isoformat()
+        }
+
     def __str__(self):
         return f"ConsumptionEntry(Volume: {self.volume}, Timestamp: {self.timestamp})"
 
@@ -28,6 +35,15 @@ class ConsumptionData:
             if entry.timestamp == date:
                 return entry
         return None
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization."""
+        return {
+            'document_id': self.document_id,
+            'start_date': self.start_date.isoformat(),
+            'end_date': self.end_date.isoformat(),
+            'data': [entry.to_dict() for entry in self.data]
+        }
 
     def __str__(self):
         entries_str = "\n".join(str(entry) for entry in self.data)
