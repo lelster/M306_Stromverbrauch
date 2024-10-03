@@ -11,7 +11,18 @@ class FileReader:
     """FileReader class to read ESL files and parse meter data."""
     @staticmethod
     def read_esl_files(dirpath: str) -> list[MeterData]:
-        """Reads all ESL files in the given directory and returns a list of MeterData."""
+        """
+        Reads all ESL files in the given directory and returns a list of MeterData.
+        
+        Args:
+            dirpath (str): The path to the directory containing ESL XML files.
+
+        Returns:
+            list[MeterData]: A list of MeterData objects parsed from the ESL files.
+
+        Raises:
+            SystemError: If an error occurs while reading any of the ESL files.
+        """
         files = [os.path.join(dirpath, f) for f in os.listdir(dirpath)
                  if os.path.isfile(os.path.join(dirpath, f)) and f.endswith(".xml")]
         files.sort()
@@ -26,7 +37,20 @@ class FileReader:
 
     @staticmethod
     def read_esl_file(filepath: str) -> MeterData:
-        """Reads one ESL file and returns the first MeterData found."""
+        """
+        Reads one ESL file and returns the first MeterData found.
+
+        Args:
+            filepath (str): The path to the ESL XML file to be read.
+
+        Returns:
+            MeterData: The MeterData object containing the extracted meter readings.
+            Returns `None` if the file does not contain valid meter data.
+
+        Raises:
+            ValueError: If an OBIS code has invalid data status.
+            Exception: If any other error occurs during file parsing.
+        """
         obis_id_codes: dict[str, str] = {
             "1-1:1.8.1": "ID742", "1-1:1.8.2": "ID742",
             "1-1:2.8.1": "ID735", "1-1:2.8.2": "ID735",
@@ -84,7 +108,18 @@ class FileReader:
 
     @staticmethod
     def read_sdat_files(dirpath: str) -> list[ConsumptionData]:
-        """Reads all SDAT files in the given directory and returns a list of ConsumptionData."""
+        """
+        Reads all SDAT files in the given directory and returns a list of ConsumptionData.
+        
+        Args:
+            dirpath (str): The path to the directory containing SDAT XML files.
+
+        Returns:
+            list[ConsumptionData]: A list of ConsumptionData objects parsed from the SDAT files.
+
+        Raises:
+            SystemError: If an error occurs while reading any of the SDAT files.
+        """
         files = [os.path.join(dirpath, f) for f in os.listdir(dirpath)
                  if os.path.isfile(os.path.join(dirpath, f)) and f.endswith(".xml")]
         files.sort()
@@ -99,7 +134,19 @@ class FileReader:
 
     @staticmethod
     def read_sdat_file(filepath: str) -> ConsumptionData:
-        """Reads an SDAT file and returns a ConsumptionData object."""
+        """
+        Reads an SDAT file and returns a ConsumptionData object.
+        
+        Args:
+            filepath (str): The path to the SDAT XML file to be read.
+
+        Returns:
+            ConsumptionData: The ConsumptionData object containing the extracted consumption entries.
+            Returns `None` if the file does not contain valid consumption data.
+
+        Raises:
+            Exception: If any error occurs during file parsing.
+        """
         try:
             tree = ET.parse(filepath)
             root = tree.getroot()
