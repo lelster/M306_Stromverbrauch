@@ -56,39 +56,39 @@ def apprun(dataConsumption, dataMeter):
         for (year, month), total in month_totals.items():
             year_totals[year] = year_totals.get(year, 0) + total
 
-            # Store the aggregated data for this ID
-            consumption_data_per_id[sensor_id] = {
-                'time_series_data': time_series_data,
-                'day_totals': day_totals,
-                'month_totals': month_totals,
-                'year_totals': year_totals
-            }
+        # Store the aggregated data for this ID
+        consumption_data_per_id[sensor_id] = {
+            'time_series_data': time_series_data,
+            'day_totals': day_totals,
+            'month_totals': month_totals,
+            'year_totals': year_totals
+        }
 
-        # Process meter data
-        # Filter meter data to eliminate duplicates
-        filtered_meter_data = data_processor.filter_meter_data(dataMeter)
-        # Group meter data by month
-        grouped_meter_data = data_processor.group_meter_data_by_month(filtered_meter_data)
+    # Process meter data
+    # Filter meter data to eliminate duplicates
+    filtered_meter_data = data_processor.filter_meter_data(dataMeter)
+    # Group meter data by month
+    grouped_meter_data = data_processor.group_meter_data_by_month(filtered_meter_data)
 
-        # Prepare data for each sensor ID
-        for sensor_id in sensor_ids:
-            dates = []
-            values = []
-            for (year, month), meter_data_list in grouped_meter_data.items():
-                for meter_data in meter_data_list:
-                    if sensor_id in meter_data.data:
-                        dates.append(meter_data.timestamp)
-                        values.append(meter_data.get_reading(sensor_id))
-            # Sort the dates and values
-            sorted_pairs = sorted(zip(dates, values), key=lambda x: x[0])
-            dates_sorted, values_sorted = zip(*sorted_pairs) if sorted_pairs else ([], [])
-            meter_data_per_id[sensor_id] = {
-                'dates': dates_sorted,
-                'values': values_sorted
-            }
+    # Prepare data for each sensor ID
+    for sensor_id in sensor_ids:
+        dates = []
+        values = []
+        for (year, month), meter_data_list in grouped_meter_data.items():
+            for meter_data in meter_data_list:
+                if sensor_id in meter_data.data:
+                    dates.append(meter_data.timestamp)
+                    values.append(meter_data.get_reading(sensor_id))
+        # Sort the dates and values
+        sorted_pairs = sorted(zip(dates, values), key=lambda x: x[0])
+        dates_sorted, values_sorted = zip(*sorted_pairs) if sorted_pairs else ([], [])
+        meter_data_per_id[sensor_id] = {
+            'dates': dates_sorted,
+            'values': values_sorted
+        }
 
-        # Start the Dash app, passing the data
-        app.run_dash_app(consumption_data_per_id, meter_data_per_id)
+    # Start the Dash app, passing the data
+    app.run_dash_app(consumption_data_per_id, meter_data_per_id)
 
 
 def read() -> (list[ConsumptionData], list[MeterData]):
@@ -101,7 +101,7 @@ def read() -> (list[ConsumptionData], list[MeterData]):
 def main():
     print("reading data...")
     dataConsumption, dataMeter = read()
-    Gui(dataConsumption, dataMeter)
+    apprun(dataConsumption, dataMeter)
 
 
 if __name__ == "__main__":
