@@ -284,4 +284,4 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
         else:
             return {'display': 'none'}
 
-    app.run_server(debug=True)
+    app.run_server(debug=False)

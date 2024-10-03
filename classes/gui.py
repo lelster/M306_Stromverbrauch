@@ -1,5 +1,5 @@
 import tkinter
-
+import webbrowser
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import os
@@ -57,10 +57,11 @@ class Gui:
         self.root.mainloop()
 
     def choose_visualise(self):
-        self.root.destroy()
-        apprun(self.dataConsumption, self.dataMeter)
+        """Docstring"""
+        webbrowser.open("http://127.0.0.1:8050/")
 
     def choose_export(self):
+        """Docstring"""
         self.filedialog = tkinter.filedialog.askdirectory()
         if not self.filedialog:
             messagebox.showwarning("No Directory", "Please select a directory to export.")
@@ -69,11 +70,14 @@ class Gui:
         self.export(self.filedialog, self.obis_var.get(), self.export_format, self.dataConsumption, self.dataMeter)
 
     def show_add_files_options(self):
+        """Docstring"""
         self.visualise_button.pack_forget()
         self.export_button.pack_forget()
         self.label.pack_forget()
         self.format_dropdown.pack_forget()
         self.add_files_button.pack_forget()
+        self.obis_label.pack_forget()
+        self.obis_dropdown.pack_forget()
         self.esl_button = ctk.CTkButton(self.root, text="New ESL-File", command=self.add_new_esl_file)
         self.esl_button.pack(pady=(100, 10))
         self.sdat_button = ctk.CTkButton(self.root, text="New SDAT-File", command=self.add_new_sdat_file)
@@ -83,6 +87,7 @@ class Gui:
         self.back_button.place(x=10, y=10)
 
     def add_new_sdat_file(self):
+        """Docstring"""
         file_path = filedialog.askopenfilename()
         if file_path:
             destination = 'data/public/SDAT-Files'
@@ -92,6 +97,7 @@ class Gui:
             self.show_buttons()
 
     def add_new_esl_file(self):
+        """Docstring"""
         file_path = filedialog.askopenfilename()
         if file_path:
             destination = 'data/public/ESL-Files'
@@ -101,16 +107,20 @@ class Gui:
             self.show_buttons()
 
     def show_buttons(self):
+        """Docstring"""
         self.visualise_button.pack(pady=(50, 10))
         self.add_files_button.pack(pady=(10, 10))
         self.export_button.pack(pady=(10,10))
         self.label.pack(pady=(10, 5))
         self.format_dropdown.pack(pady=5)
+        self.obis_label.pack(pady=(10, 5))
+        self.obis_dropdown.pack(pady=5)
         self.sdat_button.pack_forget()
         self.esl_button.pack_forget()
         self.back_button.place_forget()
 
     def export(self, path: str, obiscode: str, export_type: str, dataConsumption: list[ConsumptionData], dataMeter: list[MeterData]):
+        """Docstring"""
         exporter = Exporter()
         if export_type == 'csv':
             exporter.export_to_csv(path, obiscode, dataConsumption, dataMeter)
