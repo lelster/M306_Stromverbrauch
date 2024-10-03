@@ -106,7 +106,9 @@ def read() -> (list[ConsumptionData], list[MeterData]):
 def main():
     print("reading data...")
     dataConsumption, dataMeter = read()
-    apprun(dataConsumption, dataMeter)
+    gui = Gui(dataConsumption, dataMeter)
+    if gui.choice == "visualise":
+        apprun(dataConsumption, dataMeter)
 
 
 if __name__ == "__main__":
