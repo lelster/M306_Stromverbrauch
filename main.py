@@ -18,6 +18,11 @@ def apprun(dataConsumption, dataMeter):
     # Dictionary to store data for each ID
     consumption_data_per_id = {}
     meter_data_per_id = {}
+    global costtypevalueVALUE
+    costtypevalueVALUE = "Totaltarif"
+    def costtypevalue(v: str):
+        costtypevalueVALUE = v
+        print(costtypevalueVALUE)
 
     # Process consumption data
     for sensor_id in sensor_ids:
@@ -78,7 +83,7 @@ def apprun(dataConsumption, dataMeter):
             for meter_data in meter_data_list:
                 if sensor_id in meter_data.data:
                     dates.append(meter_data.timestamp)
-                    values.append(meter_data.get_reading(sensor_id).totalcost)
+                    values.append(meter_data.get_reading(sensor_id).totalcost if costtypevalueVALUE == "Totaltarif" else (meter_data.get_reading(sensor_id).highcost if costtypevalueVALUE == "Hochtarif" else meter_data.get_reading(sensor_id).lowcost))
         # Sort the dates and values
         sorted_pairs = sorted(zip(dates, values), key=lambda x: x[0])
         dates_sorted, values_sorted = zip(*sorted_pairs) if sorted_pairs else ([], [])
@@ -88,7 +93,7 @@ def apprun(dataConsumption, dataMeter):
         }
 
     # Start the Dash app, passing the data
-    app.run_dash_app(consumption_data_per_id, meter_data_per_id)
+    app.run_dash_app(consumption_data_per_id, meter_data_per_id, costtypevalue)
 
 
 def read() -> (list[ConsumptionData], list[MeterData]):

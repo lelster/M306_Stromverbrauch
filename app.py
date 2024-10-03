@@ -10,7 +10,7 @@ import plotly.graph_objs as go
 consumption_data_per_id = {}
 meter_data_per_id = {}
 
-def run_dash_app(consumption_data_arg, meter_data_arg):
+def run_dash_app(consumption_data_arg, meter_data_arg, costtypevalue):
     global consumption_data_per_id, meter_data_per_id
     consumption_data_per_id = consumption_data_arg
     meter_data_per_id = meter_data_arg
@@ -20,9 +20,11 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
 
     # List of sensor IDs
     sensor_ids = list(consumption_data_per_id.keys())
+    cost_types = ["Totaltarif", "Hochtarif", "Niedertrarif"]
 
     # Set initial sensor ID
     initial_sensor_id = sensor_ids[0]
+    initial_cost_type = "Totaltarif"
 
     # Chart types
     chart_types = ['Line Chart', 'Bar Chart']
@@ -67,7 +69,7 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
 
     app.layout = html.Div([
         html.Div([
-            html.Label('Select Chart Type:'),
+            html.Label('Wähle Chart Type:'),
             dcc.Dropdown(
                 id='chart-type-dropdown',
                 options=[{'label': ct, 'value': ct} for ct in chart_types],
@@ -77,11 +79,21 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
             ),
         ], style={'width': '20%', 'display': 'inline-block'}),
         html.Div([
-            html.Label('Select Sensor ID:'),
+            html.Label('Wähle Sensor ID:'),
             dcc.Dropdown(
                 id='sensor-id-dropdown',
                 options=[{'label': id_, 'value': id_} for id_ in sensor_ids],
                 value=initial_sensor_id,
+                searchable=False,
+                clearable=False
+            ),
+        ], style={'width': '20%', 'display': 'inline-block', 'marginLeft': '10px'}),
+                html.Div([
+            html.Label('Tarif Typ wählen:'),
+            dcc.Dropdown(
+                id='cost-type-dropdown',
+                options=[{'label': id_, 'value': id_} for id_ in cost_types],
+                value=initial_cost_type,
                 searchable=False,
                 clearable=False
             ),
@@ -97,11 +109,13 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
         Output('main-graph', 'figure'),
         Input('chart-type-dropdown', 'value'),
         Input('sensor-id-dropdown', 'value'),
+        Input('cost-type-dropdown', 'value'),
         Input('main-graph', 'relayoutData'),
         State('main-graph', 'figure')
     )
-    def update_graph(selected_chart_type, selected_sensor_id, relayoutData, current_fig):
+    def update_graph(selected_chart_type, selected_sensor_id, costtypeval, relayoutData, current_fig):
         # Prepare data based on chart type
+        costtypevalue(costtypeval)
         if selected_chart_type == 'Line Chart':
             sensor_data = consumption_data_per_id[selected_sensor_id]
             time_series_data = sensor_data['time_series_data']
@@ -118,7 +132,7 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 new_fig = go.Figure(
                     data=[go.Scatter(x=x_years, y=year_values, mode='lines+markers')],
                     layout=go.Layout(
-                        title=f'Yearly Consumption for {selected_sensor_id}',
+                        title=f'Jährliche Statistik für {selected_sensor_id}',
                         xaxis={'title': 'Year'},
                         yaxis={'title': 'Consumption (kWh)'},
                     )
@@ -132,7 +146,7 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 new_fig = go.Figure(
                     data=[go.Scatter(x=x_years, y=year_values, mode='lines+markers')],
                     layout=go.Layout(
-                        title=f'Yearly Consumption for {selected_sensor_id}',
+                        title=f'Jährliche Statistik für {selected_sensor_id}',
                         xaxis={'title': 'Year'},
                         yaxis={'title': 'Consumption (kWh)'},
                     )
@@ -150,7 +164,7 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 new_fig = go.Figure(
                     data=[go.Scatter(x=x_years, y=year_values, mode='lines+markers')],
                     layout=go.Layout(
-                        title=f'Yearly Consumption for {selected_sensor_id}',
+                        title=f'Jährliche Statistik für {selected_sensor_id}',
                         xaxis={'title': 'Year'},
                         yaxis={'title': 'Consumption (kWh)'},
                         xaxis_range=[x_min, x_max]
@@ -173,7 +187,7 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 new_fig = go.Figure(
                     data=[go.Scatter(x=x_months_filtered, y=month_values_filtered, mode='lines+markers')],
                     layout=go.Layout(
-                        title=f'Monthly Consumption for {selected_sensor_id}',
+                        title=f'Monatliche Statistik für {selected_sensor_id}',
                         xaxis={'title': 'Month'},
                         yaxis={'title': 'Consumption (kWh)'},
                         xaxis_range=[x_min, x_max]
@@ -197,7 +211,7 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 new_fig = go.Figure(
                     data=[go.Scatter(x=x_days_filtered, y=day_values_filtered, mode='lines+markers')],
                     layout=go.Layout(
-                        title=f'Daily Consumption for {selected_sensor_id}',
+                        title=f'Tägliche Statistik für {selected_sensor_id}',
                         xaxis={'title': 'Day'},
                         yaxis={'title': 'Consumption (kWh)'},
                         xaxis_range=[x_min, x_max]
@@ -213,7 +227,7 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 new_fig = go.Figure(
                     data=[go.Scatter(x=x_times, y=y_values, mode='lines+markers')],
                     layout=go.Layout(
-                        title=f'15-Minute Consumption for {selected_sensor_id}',
+                        title=f'15-Minuten Statistik für {selected_sensor_id}',
                         xaxis={'title': 'Time'},
                         yaxis={'title': 'Consumption (kWh)'},
                         xaxis_range=[x_min, x_max]
