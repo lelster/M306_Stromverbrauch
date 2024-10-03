@@ -6,10 +6,10 @@ import os
 from classes.consumtion_data import ConsumptionData
 from classes.exporter import Exporter
 from classes.meter_data import MeterData
-import classes.apprun as app
+from classes.apprun import apprun
 
 
-class Gui():
+class Gui:
     """GUI zur Auswahl von Visualisierung oder Export mit Formatwahl"""
 
     def __init__(self, dataConsumption, dataMeter):
@@ -57,7 +57,8 @@ class Gui():
         self.root.mainloop()
 
     def choose_visualise(self):
-        app.apprun(self.dataConsumption, self.dataMeter)
+        self.root.destroy()
+        apprun(self.dataConsumption, self.dataMeter)
 
     def choose_export(self):
         self.filedialog = tkinter.filedialog.askdirectory()
