@@ -1,10 +1,9 @@
-"""Main File with Workflow"""
+# main.py
+
 from classes.file_reader import FileReader
 from classes.data_processor import DataProcessor
 from classes.consumtion_data import ConsumptionData, ConsumptionEntry
-from classes.gui import Gui
 from classes.meter_data import MeterData
-from classes.exporter import Exporter
 from datetime import datetime
 import app  # Import the app module
 
@@ -18,11 +17,6 @@ def apprun(dataConsumption, dataMeter):
     # Dictionary to store data for each ID
     consumption_data_per_id = {}
     meter_data_per_id = {}
-    global costtypevalueVALUE
-    costtypevalueVALUE = "Totaltarif"
-    def costtypevalue(v: str):
-        costtypevalueVALUE = v
-        print(costtypevalueVALUE)
 
     # Process consumption data
     for sensor_id in sensor_ids:
@@ -56,6 +50,7 @@ def apprun(dataConsumption, dataMeter):
         for date, total in day_totals.items():
             year_month = (date.year, date.month)
             month_totals[year_month] = month_totals.get(year_month, 0) + total
+
         # Year totals
         year_totals = {}
         for (year, month), total in month_totals.items():
@@ -78,22 +73,32 @@ def apprun(dataConsumption, dataMeter):
     # Prepare data for each sensor ID
     for sensor_id in sensor_ids:
         dates = []
-        values = []
+        totaltarif_values = []
+        hochtarif_values = []
+        niedertarif_values = []
         for (year, month), meter_data_list in grouped_meter_data.items():
             for meter_data in meter_data_list:
                 if sensor_id in meter_data.data:
                     dates.append(meter_data.timestamp)
-                    values.append(meter_data.get_reading(sensor_id).totalcost if costtypevalueVALUE == "Totaltarif" else (meter_data.get_reading(sensor_id).highcost if costtypevalueVALUE == "Hochtarif" else meter_data.get_reading(sensor_id).lowcost))
+                    reading = meter_data.get_reading(sensor_id)
+                    totaltarif_values.append(reading.totalcost)
+                    hochtarif_values.append(reading.highcost)
+                    niedertarif_values.append(reading.lowcost)
         # Sort the dates and values
-        sorted_pairs = sorted(zip(dates, values), key=lambda x: x[0])
-        dates_sorted, values_sorted = zip(*sorted_pairs) if sorted_pairs else ([], [])
+        sorted_pairs = sorted(zip(dates, totaltarif_values, hochtarif_values, niedertarif_values), key=lambda x: x[0])
+        if sorted_pairs:
+            dates_sorted, totaltarif_values_sorted, hochtarif_values_sorted, niedertarif_values_sorted = zip(*sorted_pairs)
+        else:
+            dates_sorted, totaltarif_values_sorted, hochtarif_values_sorted, niedertarif_values_sorted = [], [], [], []
         meter_data_per_id[sensor_id] = {
             'dates': dates_sorted,
-            'values': values_sorted
+            'totaltarif_values': totaltarif_values_sorted,
+            'hochtarif_values': hochtarif_values_sorted,
+            'niedertarif_values': niedertarif_values_sorted
         }
 
     # Start the Dash app, passing the data
-    app.run_dash_app(consumption_data_per_id, meter_data_per_id, costtypevalue)
+    app.run_dash_app(consumption_data_per_id, meter_data_per_id)
 
 
 def read() -> (list[ConsumptionData], list[MeterData]):

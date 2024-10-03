@@ -1,16 +1,16 @@
-"""# app.py"""
+# app.py
+
 import datetime
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 
-
 # Define global variables to store data
 consumption_data_per_id = {}
 meter_data_per_id = {}
 
-def run_dash_app(consumption_data_arg, meter_data_arg, costtypevalue):
+def run_dash_app(consumption_data_arg, meter_data_arg):
     global consumption_data_per_id, meter_data_per_id
     consumption_data_per_id = consumption_data_arg
     meter_data_per_id = meter_data_arg
@@ -20,11 +20,9 @@ def run_dash_app(consumption_data_arg, meter_data_arg, costtypevalue):
 
     # List of sensor IDs
     sensor_ids = list(consumption_data_per_id.keys())
-    cost_types = ["Totaltarif", "Hochtarif", "Niedertrarif"]
 
     # Set initial sensor ID
     initial_sensor_id = sensor_ids[0]
-    initial_cost_type = "Totaltarif"
 
     # Chart types
     chart_types = ['Line Chart', 'Bar Chart']
@@ -41,9 +39,12 @@ def run_dash_app(consumption_data_arg, meter_data_arg, costtypevalue):
             return x_years, year_values
         elif chart_type == 'Bar Chart':
             dates = meter_data_per_id[sensor_id]['dates']
-            values = meter_data_per_id[sensor_id]['values']
-            return dates, values
+            totaltarif_values = meter_data_per_id[sensor_id]['totaltarif_values']
+            hochtarif_values = meter_data_per_id[sensor_id]['hochtarif_values']
+            niedertarif_values = meter_data_per_id[sensor_id]['niedertarif_values']
+            return dates, totaltarif_values, hochtarif_values, niedertarif_values
 
+    # Prepare initial data
     x_data, y_data = prepare_initial_data(initial_sensor_id, initial_chart_type)
 
     # Initial figure
@@ -57,10 +58,12 @@ def run_dash_app(consumption_data_arg, meter_data_arg, costtypevalue):
             )
         )
     else:
+        dates, totaltarif_values, hochtarif_values, niedertarif_values = prepare_initial_data(initial_sensor_id, initial_chart_type)
+        # Since initial stacked view is off, show Totaltarif
         fig = go.Figure(
-            data=[go.Bar(x=x_data, y=y_data)],
+            data=[go.Bar(x=dates, y=totaltarif_values, name='Totaltarif')],
             layout=go.Layout(
-                title=f'Meter Data for {initial_sensor_id}',
+                title=f'Meter Data for {initial_sensor_id} (Totaltarif)',
                 xaxis={'title': 'Date'},
                 yaxis={'title': 'Value (kWh)'},
                 barmode='group'
@@ -69,7 +72,7 @@ def run_dash_app(consumption_data_arg, meter_data_arg, costtypevalue):
 
     app.layout = html.Div([
         html.Div([
-            html.Label('Wähle Chart Type:'),
+            html.Label('Select Chart Type:'),
             dcc.Dropdown(
                 id='chart-type-dropdown',
                 options=[{'label': ct, 'value': ct} for ct in chart_types],
@@ -79,7 +82,7 @@ def run_dash_app(consumption_data_arg, meter_data_arg, costtypevalue):
             ),
         ], style={'width': '20%', 'display': 'inline-block'}),
         html.Div([
-            html.Label('Wähle Sensor ID:'),
+            html.Label('Select Sensor ID:'),
             dcc.Dropdown(
                 id='sensor-id-dropdown',
                 options=[{'label': id_, 'value': id_} for id_ in sensor_ids],
@@ -88,16 +91,15 @@ def run_dash_app(consumption_data_arg, meter_data_arg, costtypevalue):
                 clearable=False
             ),
         ], style={'width': '20%', 'display': 'inline-block', 'marginLeft': '10px'}),
-                html.Div([
-            html.Label('Tarif Typ wählen:'),
-            dcc.Dropdown(
-                id='cost-type-dropdown',
-                options=[{'label': id_, 'value': id_} for id_ in cost_types],
-                value=initial_cost_type,
-                searchable=False,
-                clearable=False
+        html.Div([
+            html.Label('Stacked View:'),
+            dcc.Checklist(
+                id='stacked-view-checkbox',
+                options=[{'label': 'Enable', 'value': 'stacked'}],
+                value=[],
+                labelStyle={'display': 'inline-block'}
             ),
-        ], style={'width': '20%', 'display': 'inline-block', 'marginLeft': '10px'}),
+        ], style={'width': '20%', 'display': 'inline-block', 'marginLeft': '10px'}, id='stacked-view-checkbox-div'),
         dcc.Graph(
             id='main-graph',
             figure=fig,
@@ -109,13 +111,12 @@ def run_dash_app(consumption_data_arg, meter_data_arg, costtypevalue):
         Output('main-graph', 'figure'),
         Input('chart-type-dropdown', 'value'),
         Input('sensor-id-dropdown', 'value'),
-        Input('cost-type-dropdown', 'value'),
+        Input('stacked-view-checkbox', 'value'),
         Input('main-graph', 'relayoutData'),
         State('main-graph', 'figure')
     )
-    def update_graph(selected_chart_type, selected_sensor_id, costtypeval, relayoutData, current_fig):
+    def update_graph(selected_chart_type, selected_sensor_id, stacked_view, relayoutData, current_fig):
         # Prepare data based on chart type
-        costtypevalue(costtypeval)
         if selected_chart_type == 'Line Chart':
             sensor_data = consumption_data_per_id[selected_sensor_id]
             time_series_data = sensor_data['time_series_data']
@@ -237,25 +238,52 @@ def run_dash_app(consumption_data_arg, meter_data_arg, costtypevalue):
             else:
                 return current_fig
 
+            # Handle zooming and panning here (omitted for brevity)
+
         elif selected_chart_type == 'Bar Chart':
             dates = meter_data_per_id[selected_sensor_id]['dates']
-            values = meter_data_per_id[selected_sensor_id]['values']
+            totaltarif_values = meter_data_per_id[selected_sensor_id]['totaltarif_values']
+            hochtarif_values = meter_data_per_id[selected_sensor_id]['hochtarif_values']
+            niedertarif_values = meter_data_per_id[selected_sensor_id]['niedertarif_values']
 
-            # Create bar chart with rangeslider and buttons
+            if 'stacked' in stacked_view:
+                data_traces = [
+                    go.Bar(x=dates, y=hochtarif_values, name='Hochtarif'),
+                    go.Bar(x=dates, y=niedertarif_values, name='Niedertarif')
+                ]
+                barmode = 'stack'
+                title = f'Meter Data for {selected_sensor_id} (Stacked Hochtarif and Niedertarif)'
+            else:
+                data_traces = [go.Bar(x=dates, y=totaltarif_values, name='Totaltarif')]
+                barmode = 'group'
+                title = f'Meter Data for {selected_sensor_id} (Totaltarif)'
+
+            # Create bar chart
             new_fig = go.Figure(
-                data=[go.Bar(x=dates, y=values, name=f'Meter Data ({selected_sensor_id})')],
+                data=data_traces,
                 layout=go.Layout(
-                    title=f'Meter Data for {selected_sensor_id}',
+                    title=title,
                     xaxis={
                         'title': 'Date',
                         'type': 'date'
                     },
                     yaxis={'title': 'Value (kWh)'},
                     hovermode='closest',
-                    barmode='group'
+                    barmode=barmode
                 )
             )
             return new_fig
+
+    @app.callback(
+        Output('stacked-view-checkbox-div', 'style'),
+        Input('chart-type-dropdown', 'value'),
+    )
+    def toggle_stacked_view_visibility(selected_chart_type):
+        if selected_chart_type == 'Bar Chart':
+            return {'width': '20%', 'display': 'inline-block', 'marginLeft': '10px'}
+        else:
+            return {'display': 'none'}
+
 
     # Run the app
     app.run_server(debug=True)
