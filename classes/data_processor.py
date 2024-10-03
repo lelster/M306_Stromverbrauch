@@ -1,8 +1,8 @@
-"""Class"""
+"""DataProcessor Class"""
 from datetime import datetime
+from collections import defaultdict
 from classes.meter_data import MeterData
 from classes.consumtion_data import ConsumptionData
-from collections import defaultdict
 
 class DataProcessor:
     """Docstring"""
@@ -27,7 +27,9 @@ class DataProcessor:
                     if entry_key not in seen_entries:
                         seen_entries.add(entry_key)
                         unique_entries.append(entry)
-                filtered_data_item = ConsumptionData(data.document_id, data.start_date, data.end_date)
+                filtered_data_item = ConsumptionData(
+                    data.document_id, data.start_date, data.end_date
+                )
                 filtered_data_item.data = unique_entries
                 filtered_data.append(filtered_data_item)
 
@@ -56,17 +58,24 @@ class DataProcessor:
 
         return filtered_data
 
-
     @staticmethod
-    def get_data(sensor_id: str, sdat_data: list[ConsumptionData], start_date: datetime = None,
-                   end_date: datetime = None) -> list[ConsumptionData]:
-        """Finds and returns all ConsumptionData that match the sensor ID and fall within the specified date range."""
+    def get_data(
+        sensor_id: str,
+        sdat_data: list[ConsumptionData],
+        start_date: datetime = None,
+        end_date: datetime = None,
+    ) -> list[ConsumptionData]:
+        """
+        Finds and returns all ConsumptionData that match the sensor ID
+        and fall within the specified date range.
+        """
         new_data = DataProcessor.filter_data(sdat_data)
         combined_data = [data for data in new_data if data.document_id == sensor_id]
 
         if start_date and end_date:
             date_filtered_data = [
-                data for data in combined_data
+                data
+                for data in combined_data
                 if (data.start_date >= start_date and data.end_date <= end_date)
             ]
         else:
@@ -78,11 +87,14 @@ class DataProcessor:
             return date_filtered_data
 
     @staticmethod
-    def get_data_by_time(sensor_id: str, sdat_data: list[ConsumptionData]) -> dict[str, dict[str, dict[str, list[tuple[datetime, float]]]]]:
+    def get_data_by_time(
+        sensor_id: str, sdat_data: list[ConsumptionData]
+    ) -> dict[str, dict[str, dict[str, list[tuple[datetime, float]]]]]:
         """
         Organizes the consumption data by year, month, and day.
-        :return: A nested dictionary where the first level keys are years, second level keys are months,
-                 and third level keys are days, with lists of (timestamp, volume) for 15-minute intervals.
+        :return: A nested dictionary where the first level keys are years, 
+                 second level keys are months, and third level keys are days,
+                 with lists of (timestamp, volume) for 15-minute intervals.
         """
         time_data = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
@@ -99,7 +111,9 @@ class DataProcessor:
         return dict(time_data)
 
     @staticmethod
-    def group_meter_data_by_month(meter_data: list[MeterData]) -> dict[tuple[int, int], list[MeterData]]:
+    def group_meter_data_by_month(
+        meter_data: list[MeterData],
+    ) -> dict[tuple[int, int], list[MeterData]]:
         """Groups MeterData by year and month after filtering duplicates."""
         filtered_meter_data = DataProcessor.filter_meter_data(meter_data)
 
@@ -111,5 +125,3 @@ class DataProcessor:
             grouped_data[(year, month)].append(data)
 
         return grouped_data
-
-

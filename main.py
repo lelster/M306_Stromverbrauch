@@ -1,4 +1,4 @@
-import threading
+"""Main Project File"""
 import multiprocessing
 from classes.file_reader import FileReader
 from classes.gui import Gui
@@ -17,6 +17,7 @@ def run_flask():
     apprun(data_consumption, data_meter)
 
 def main():
+    """Main Workflow"""
     print("Initiating...")
     print("Loading data...")
 

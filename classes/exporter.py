@@ -1,3 +1,5 @@
+"""Exporter Class"""
+
 import csv
 import json
 import os
@@ -16,17 +18,24 @@ class Exporter:
             return o.isoformat()
 
     @staticmethod
-    def export_to_csv(file_path: str, obiscode: str, consumption_data: list[ConsumptionData], meter_data: list[MeterData]) -> bool:
+    def export_to_csv(
+        file_path: str,
+        obiscode: str,
+        consumption_data: list[ConsumptionData],
+        meter_data: list[MeterData],
+    ) -> bool:
         """Export consumption and meter data to CSV files."""
         try:
-            timestamp_dir = datetime.now().strftime('%Y_%m_%d(%H.%M.%S)')
+            timestamp_dir = datetime.now().strftime("%Y_%m_%d(%H.%M.%S)")
             full_path = os.path.join(file_path, timestamp_dir)
             if not os.path.exists(full_path):
                 os.makedirs(full_path)
 
             consumption_file_path = os.path.join(full_path, "consumption_data.csv")
-            with open(consumption_file_path, "w+", newline="") as file:
-                writer = csv.writer(file, delimiter=';')
+            with open(
+                file=consumption_file_path, mode="w+", encoding="UTF-8", newline=""
+            ) as file:
+                writer = csv.writer(file, delimiter=";")
                 writer.writerow(["timestamp", "value"])
                 for data in consumption_data:
                     for entry in data.data:
@@ -34,13 +43,20 @@ class Exporter:
                             writer.writerow([entry.timestamp.timestamp(), entry.volume])
 
             meter_file_path = os.path.join(full_path, "meter_data.csv")
-            with open(meter_file_path, "w+", newline="") as file:
-                writer = csv.writer(file, delimiter=';')
+            with open(
+                file=meter_file_path, mode="w+", encoding="UTF-8", newline=""
+            ) as file:
+                writer = csv.writer(file, delimiter=";")
                 writer.writerow(["timestamp", "value"])
                 for meter in meter_data:
                     for obis_code, reading in meter.data.items():
                         if obis_code.lower() == obiscode.lower():
-                            writer.writerow([str(int(meter.timestamp.timestamp())), reading.totalcost])
+                            writer.writerow(
+                                [
+                                    str(int(meter.timestamp.timestamp())),
+                                    reading.totalcost,
+                                ]
+                            )
 
             return True
         except Exception as e:
@@ -48,10 +64,15 @@ class Exporter:
             return False
 
     @staticmethod
-    def export_to_json(file_path: str, obiscode: str, consumption_data: list[ConsumptionData], meter_data: list[MeterData]) -> bool:
+    def export_to_json(
+        file_path: str,
+        obiscode: str,
+        consumption_data: list[ConsumptionData],
+        meter_data: list[MeterData],
+    ) -> bool:
         """Export consumption and meter data to JSON files in the required format."""
         try:
-            timestamp_dir = datetime.now().strftime('%Y_%m_%d(%H.%M.%S)')
+            timestamp_dir = datetime.now().strftime("%Y_%m_%d(%H.%M.%S)")
             full_path = os.path.join(file_path, timestamp_dir)
             if not os.path.exists(full_path):
                 os.makedirs(full_path)
@@ -64,9 +85,13 @@ class Exporter:
                 {
                     "sensorId": data.document_id,
                     "data": [
-                        {"ts": str(int(entry.timestamp.timestamp())), "value": entry.volume}
-                        for entry in data.data if data.document_id.lower() == obiscode.lower()
-                    ]
+                        {
+                            "ts": str(int(entry.timestamp.timestamp())),
+                            "value": entry.volume,
+                        }
+                        for entry in data.data
+                        if data.document_id.lower() == obiscode.lower()
+                    ],
                 }
                 for data in consumption_data
             ]
@@ -76,24 +101,28 @@ class Exporter:
                 {
                     "sensorId": obis_code,
                     "data": [
-                        {"ts": str(int(meter.timestamp.timestamp())), "value": reading.totalcost}
-                    ]
+                        {
+                            "ts": str(int(meter.timestamp.timestamp())),
+                            "value": reading.totalcost,
+                        }
+                    ],
                 }
                 for meter in meter_data
                 for obis_code, reading in meter.data.items()
                 if obis_code.lower() == obiscode.lower()
             ]
 
-            with open(consumption_file_path, "w+") as file:
+            with open(file=consumption_file_path, mode="w+", encoding="UTF-8") as file:
                 json.dump(consumption_data_formatted, file, indent=4)
 
-            with open(meter_file_path, "w+") as file:
+            with open(file=meter_file_path, mode="w+", encoding="UTF-8") as file:
                 json.dump(meter_data_formatted, file, indent=4)
 
             return True
         except Exception as e:
             print(f"Error writing JSON files: {e}")
             return False
+
 
 if __name__ == "__main__":
     pass

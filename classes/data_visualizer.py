@@ -1,3 +1,4 @@
+"""DataVisualizer Class"""
 from plotly.graph_objs import Figure, Bar, Scatter
 
 class DataVisualizer:
@@ -18,10 +19,10 @@ class DataVisualizer:
         fig = Figure(
             data=[chart],
             layout={
-                'title': title,
-                'xaxis': {'title': 'Time'},
-                'yaxis': {'title': 'Consumption (Bar)'},
-            }
+                "title": title,
+                "xaxis": {"title": "Time"},
+                "yaxis": {"title": "Consumption (Bar)"},
+            },
         )
         return fig
 
@@ -35,14 +36,14 @@ class DataVisualizer:
         :param title: The chart title
         :return: A Plotly Figure object
         """
-        chart = Scatter(x=x_labels, y=data, mode='lines+markers')
+        chart = Scatter(x=x_labels, y=data, mode="lines+markers")
 
         fig = Figure(
             data=[chart],
             layout={
-                'title': title,
-                'xaxis': {'title': 'Time'},
-                'yaxis': {'title': 'Consumption (Line)'},
-            }
+                "title": title,
+                "xaxis": {"title": "Time"},
+                "yaxis": {"title": "Consumption (Line)"},
+            },
         )
         return fig

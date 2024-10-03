@@ -1,3 +1,4 @@
+"""Dash App Run Function"""
 import datetime
 import dash
 from dash import dcc, html
@@ -7,7 +8,9 @@ import plotly.graph_objs as go
 consumption_data_per_id = {}
 meter_data_per_id = {}
 
+
 def run_dash_app(consumption_data_arg, meter_data_arg):
+    """Dash App Run Function"""
     global consumption_data_per_id, meter_data_per_id
     consumption_data_per_id = consumption_data_arg
     meter_data_per_id = meter_data_arg
@@ -15,126 +18,143 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
     app = dash.Dash(__name__)
     sensor_ids = list(consumption_data_per_id.keys())
     initial_sensor_id = sensor_ids[0]
-    chart_types = ['Liniendiagramm', 'Balkendiagramm']
-    initial_chart_type = 'Liniendiagramm'
+    chart_types = ["Liniendiagramm", "Balkendiagramm"]
+    initial_chart_type = "Liniendiagramm"
 
     def prepare_initial_data(sensor_id, chart_type):
-        if chart_type == 'Liniendiagramm':
+        if chart_type == "Liniendiagramm":
             sensor_data = consumption_data_per_id[sensor_id]
-            year_totals = sensor_data['year_totals']
+            year_totals = sensor_data["year_totals"]
             years = sorted(year_totals.keys())
             year_values = [year_totals[year] for year in years]
             x_years = [datetime.datetime(year, 1, 1) for year in years]
             return x_years, year_values
-        elif chart_type == 'Balkendiagramm':
-            dates = meter_data_per_id[sensor_id]['dates']
-            totaltarif_values = meter_data_per_id[sensor_id]['totaltarif_values']
-            hochtarif_values = meter_data_per_id[sensor_id]['hochtarif_values']
-            niedertarif_values = meter_data_per_id[sensor_id]['niedertarif_values']
+        elif chart_type == "Balkendiagramm":
+            dates = meter_data_per_id[sensor_id]["dates"]
+            totaltarif_values = meter_data_per_id[sensor_id]["totaltarif_values"]
+            hochtarif_values = meter_data_per_id[sensor_id]["hochtarif_values"]
+            niedertarif_values = meter_data_per_id[sensor_id]["niedertarif_values"]
             return dates, totaltarif_values, hochtarif_values, niedertarif_values
 
     x_data, y_data = prepare_initial_data(initial_sensor_id, initial_chart_type)
 
-    if initial_chart_type == 'Liniendiagramm':
+    if initial_chart_type == "Liniendiagramm":
         fig = go.Figure(
-            data=[go.Scatter(x=x_data, y=y_data, mode='lines+markers')],
+            data=[go.Scatter(x=x_data, y=y_data, mode="lines+markers")],
             layout=go.Layout(
-                title=f'Jährlicher Konsum für {initial_sensor_id}',
-                xaxis={'title': 'Year'},
-                yaxis={'title': 'Konsum (kWh)'},
-            )
+                title=f"Jährlicher Konsum für {initial_sensor_id}",
+                xaxis={"title": "Year"},
+                yaxis={"title": "Konsum (kWh)"},
+            ),
         )
     else:
-        dates, totaltarif_values, hochtarif_values, niedertarif_values = prepare_initial_data(initial_sensor_id, initial_chart_type)
+        dates, totaltarif_values, hochtarif_values, niedertarif_values = (
+            prepare_initial_data(initial_sensor_id, initial_chart_type)
+        )
         fig = go.Figure(
-            data=[go.Bar(x=dates, y=totaltarif_values, name='Totaltarif')],
+            data=[go.Bar(x=dates, y=totaltarif_values, name="Totaltarif")],
             layout=go.Layout(
-                title=f'Meter Daten für {initial_sensor_id} (Totaltarif)',
-                xaxis={'title': 'Datum'},
-                yaxis={'title': 'Wert (kWh)'},
-                barmode='group'
-            )
+                title=f"Meter Daten für {initial_sensor_id} (Totaltarif)",
+                xaxis={"title": "Datum"},
+                yaxis={"title": "Wert (kWh)"},
+                barmode="group",
+            ),
         )
 
-    app.layout = html.Div([
-        html.Div([
-            html.Label('Wähle Diagrammart:'),
-            dcc.Dropdown(
-                id='chart-type-dropdown',
-                options=[{'label': ct, 'value': ct} for ct in chart_types],
-                value=initial_chart_type,
-                searchable=False,
-                clearable=False
+    app.layout = html.Div(
+        [
+            html.Div(
+                [
+                    html.Label("Wähle Diagrammart:"),
+                    dcc.Dropdown(
+                        id="chart-type-dropdown",
+                        options=[{"label": ct, "value": ct} for ct in chart_types],
+                        value=initial_chart_type,
+                        searchable=False,
+                        clearable=False,
+                    ),
+                ],
+                style={"width": "20%", "display": "inline-block"},
             ),
-        ], style={'width': '20%', 'display': 'inline-block'}),
-        html.Div([
-            html.Label('Sensor ID auswählen:'),
-            dcc.Dropdown(
-                id='sensor-id-dropdown',
-                options=[{'label': id_, 'value': id_} for id_ in sensor_ids],
-                value=initial_sensor_id,
-                searchable=False,
-                clearable=False
+            html.Div(
+                [
+                    html.Label("Sensor ID auswählen:"),
+                    dcc.Dropdown(
+                        id="sensor-id-dropdown",
+                        options=[{"label": id_, "value": id_} for id_ in sensor_ids],
+                        value=initial_sensor_id,
+                        searchable=False,
+                        clearable=False,
+                    ),
+                ],
+                style={"width": "20%", "display": "inline-block", "marginLeft": "10px"},
             ),
-        ], style={'width': '20%', 'display': 'inline-block', 'marginLeft': '10px'}),
-        html.Div([
-            html.Label('Gestapelte Ansicht:'),
-            dcc.Checklist(
-                id='stacked-view-checkbox',
-                options=[{'label': 'Aktivieren', 'value': 'stacked'}],
-                value=[],
-                labelStyle={'display': 'inline-block'}
+            html.Div(
+                [
+                    html.Label("Gestapelte Ansicht:"),
+                    dcc.Checklist(
+                        id="stacked-view-checkbox",
+                        options=[{"label": "Aktivieren", "value": "stacked"}],
+                        value=[],
+                        labelStyle={"display": "inline-block"},
+                    ),
+                ],
+                style={
+                    "width": "20%",
+                    "display": "inline-block",
+                    "marginLeft": "10px",
+                    "marginTop": "100px",
+                },
+                id="stacked-view-checkbox-div",
             ),
-        ], style={'width': '20%', 'display': 'inline-block', 'marginLeft': '10px', 'marginTop': '100px'}, id='stacked-view-checkbox-div'),
-        dcc.Graph(
-            id='main-graph',
-            figure=fig,
-            config={'scrollZoom': True}
-        ),
-    ])
+            dcc.Graph(id="main-graph", figure=fig, config={"scrollZoom": True}),
+        ]
+    )
 
     @app.callback(
-        Output('main-graph', 'figure'),
-        Input('chart-type-dropdown', 'value'),
-        Input('sensor-id-dropdown', 'value'),
-        Input('stacked-view-checkbox', 'value'),
-        Input('main-graph', 'relayoutData'),
-        State('main-graph', 'figure')
+        Output("main-graph", "figure"),
+        Input("chart-type-dropdown", "value"),
+        Input("sensor-id-dropdown", "value"),
+        Input("stacked-view-checkbox", "value"),
+        Input("main-graph", "relayoutData"),
+        State("main-graph", "figure"),
     )
-    def update_graph(selected_chart_type, selected_sensor_id, stacked_view, relayoutData, current_fig):
+    def update_graph(
+        selected_chart_type, selected_sensor_id, stacked_view, relayoutData, current_fig
+    ):
         # Prepare data based on chart type
-        if selected_chart_type == 'Liniendiagramm':
+        if selected_chart_type == "Liniendiagramm":
             sensor_data = consumption_data_per_id[selected_sensor_id]
-            time_series_data = sensor_data['time_series_data']
-            day_totals = sensor_data['day_totals']
-            month_totals = sensor_data['month_totals']
-            year_totals = sensor_data['year_totals']
+            time_series_data = sensor_data["time_series_data"]
+            day_totals = sensor_data["day_totals"]
+            month_totals = sensor_data["month_totals"]
+            year_totals = sensor_data["year_totals"]
 
             years = sorted(year_totals.keys())
             x_years = [datetime.datetime(year, 1, 1) for year in years]
             year_values = [year_totals[year] for year in years]
 
-            if relayoutData is None or 'xaxis.range[0]' not in relayoutData:
+            if relayoutData is None or "xaxis.range[0]" not in relayoutData:
                 new_fig = go.Figure(
-                    data=[go.Scatter(x=x_years, y=year_values, mode='lines+markers')],
+                    data=[go.Scatter(x=x_years, y=year_values, mode="lines+markers")],
                     layout=go.Layout(
-                        title=f'Jährliche Statistik für {selected_sensor_id}',
-                        xaxis={'title': 'Jahr'},
-                        yaxis={'title': 'Konsum (kWh)'},
-                    )
+                        title=f"Jährliche Statistik für {selected_sensor_id}",
+                        xaxis={"title": "Jahr"},
+                        yaxis={"title": "Konsum (kWh)"},
+                    ),
                 )
                 return new_fig
 
-            x_min_str = relayoutData.get('xaxis.range[0]', None)
-            x_max_str = relayoutData.get('xaxis.range[1]', None)
+            x_min_str = relayoutData.get("xaxis.range[0]", None)
+            x_max_str = relayoutData.get("xaxis.range[1]", None)
             if x_min_str is None or x_max_str is None:
                 new_fig = go.Figure(
-                    data=[go.Scatter(x=x_years, y=year_values, mode='lines+markers')],
+                    data=[go.Scatter(x=x_years, y=year_values, mode="lines+markers")],
                     layout=go.Layout(
-                        title=f'Jährliche Statistik für {selected_sensor_id}',
-                        xaxis={'title': 'Jahr'},
-                        yaxis={'title': 'Konsum (kWh)'},
-                    )
+                        title=f"Jährliche Statistik für {selected_sensor_id}",
+                        xaxis={"title": "Jahr"},
+                        yaxis={"title": "Konsum (kWh)"},
+                    ),
                 )
                 return new_fig
 
@@ -144,13 +164,13 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
 
             if range_days > 730:
                 new_fig = go.Figure(
-                    data=[go.Scatter(x=x_years, y=year_values, mode='lines+markers')],
+                    data=[go.Scatter(x=x_years, y=year_values, mode="lines+markers")],
                     layout=go.Layout(
-                        title=f'Jährliche Statistik für {selected_sensor_id}',
-                        xaxis={'title': 'Jahr'},
-                        yaxis={'title': 'Konsum (kWh)'},
-                        xaxis_range=[x_min, x_max]
-                    )
+                        title=f"Jährliche Statistik für {selected_sensor_id}",
+                        xaxis={"title": "Jahr"},
+                        yaxis={"title": "Konsum (kWh)"},
+                        xaxis_range=[x_min, x_max],
+                    ),
                 )
                 return new_fig
             elif 60 < range_days <= 730:
@@ -165,18 +185,26 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                         x_months_filtered.append(x)
                         month_values_filtered.append(y)
                 new_fig = go.Figure(
-                    data=[go.Scatter(x=x_months_filtered, y=month_values_filtered, mode='lines+markers')],
+                    data=[
+                        go.Scatter(
+                            x=x_months_filtered,
+                            y=month_values_filtered,
+                            mode="lines+markers",
+                        )
+                    ],
                     layout=go.Layout(
-                        title=f'Monatliche Statistik für {selected_sensor_id}',
-                        xaxis={'title': 'Monat'},
-                        yaxis={'title': 'Konsum (kWh)'},
-                        xaxis_range=[x_min, x_max]
-                    )
+                        title=f"Monatliche Statistik für {selected_sensor_id}",
+                        xaxis={"title": "Monat"},
+                        yaxis={"title": "Konsum (kWh)"},
+                        xaxis_range=[x_min, x_max],
+                    ),
                 )
                 return new_fig
             elif 2 < range_days <= 60:
                 days = sorted(day_totals.keys())
-                x_days = [datetime.datetime.combine(date, datetime.time()) for date in days]
+                x_days = [
+                    datetime.datetime.combine(date, datetime.time()) for date in days
+                ]
                 day_values = [day_totals[date] for date in days]
 
                 x_days_filtered = []
@@ -187,13 +215,19 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                         day_values_filtered.append(y)
 
                 new_fig = go.Figure(
-                    data=[go.Scatter(x=x_days_filtered, y=day_values_filtered, mode='lines+markers')],
+                    data=[
+                        go.Scatter(
+                            x=x_days_filtered,
+                            y=day_values_filtered,
+                            mode="lines+markers",
+                        )
+                    ],
                     layout=go.Layout(
-                        title=f'Tägliche Statistik für {selected_sensor_id}',
-                        xaxis={'title': 'Tag'},
-                        yaxis={'title': 'Konsum (kWh)'},
-                        xaxis_range=[x_min, x_max]
-                    )
+                        title=f"Tägliche Statistik für {selected_sensor_id}",
+                        xaxis={"title": "Tag"},
+                        yaxis={"title": "Konsum (kWh)"},
+                        xaxis_range=[x_min, x_max],
+                    ),
                 )
                 return new_fig
             elif range_days <= 2:
@@ -202,60 +236,61 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 y_values = [time_series_data[ts] for ts in x_times]
 
                 new_fig = go.Figure(
-                    data=[go.Scatter(x=x_times, y=y_values, mode='lines+markers')],
+                    data=[go.Scatter(x=x_times, y=y_values, mode="lines+markers")],
                     layout=go.Layout(
-                        title=f'15-Minuten Statistik für {selected_sensor_id}',
-                        xaxis={'title': 'Zeit'},
-                        yaxis={'title': 'Konsum (kWh)'},
-                        xaxis_range=[x_min, x_max]
-                    )
+                        title=f"15-Minuten Statistik für {selected_sensor_id}",
+                        xaxis={"title": "Zeit"},
+                        yaxis={"title": "Konsum (kWh)"},
+                        xaxis_range=[x_min, x_max],
+                    ),
                 )
                 return new_fig
             else:
                 return current_fig
 
-        elif selected_chart_type == 'Balkendiagramm':
-            dates = meter_data_per_id[selected_sensor_id]['dates']
-            totaltarif_values = meter_data_per_id[selected_sensor_id]['totaltarif_values']
-            hochtarif_values = meter_data_per_id[selected_sensor_id]['hochtarif_values']
-            niedertarif_values = meter_data_per_id[selected_sensor_id]['niedertarif_values']
+        elif selected_chart_type == "Balkendiagramm":
+            dates = meter_data_per_id[selected_sensor_id]["dates"]
+            totaltarif_values = meter_data_per_id[selected_sensor_id][
+                "totaltarif_values"
+            ]
+            hochtarif_values = meter_data_per_id[selected_sensor_id]["hochtarif_values"]
+            niedertarif_values = meter_data_per_id[selected_sensor_id][
+                "niedertarif_values"
+            ]
 
-            if 'stacked' in stacked_view:
+            if "stacked" in stacked_view:
                 data_traces = [
-                    go.Bar(x=dates, y=hochtarif_values, name='Hochtarif'),
-                    go.Bar(x=dates, y=niedertarif_values, name='Niedertarif')
+                    go.Bar(x=dates, y=hochtarif_values, name="Hochtarif"),
+                    go.Bar(x=dates, y=niedertarif_values, name="Niedertarif"),
                 ]
-                barmode = 'stack'
-                title = f'Meter Daten für {selected_sensor_id} (Gestapelt Hochtarif and Niedertarif)'
+                barmode = "stack"
+                title =f"Meter Daten für {selected_sensor_id} (Gestapelt Hochtarif and Niedertarif)"
             else:
-                data_traces = [go.Bar(x=dates, y=totaltarif_values, name='Totaltarif')]
-                barmode = 'group'
-                title = f'Meter Daten für {selected_sensor_id} (Totaltarif)'
+                data_traces = [go.Bar(x=dates, y=totaltarif_values, name="Totaltarif")]
+                barmode = "group"
+                title = f"Meter Daten für {selected_sensor_id} (Totaltarif)"
 
             # Create bar chart
             new_fig = go.Figure(
                 data=data_traces,
                 layout=go.Layout(
                     title=title,
-                    xaxis={
-                        'title': 'Datum',
-                        'type': 'date'
-                    },
-                    yaxis={'title': 'Wert (kWh)'},
-                    hovermode='closest',
-                    barmode=barmode
-                )
+                    xaxis={"title": "Datum", "type": "date"},
+                    yaxis={"title": "Wert (kWh)"},
+                    hovermode="closest",
+                    barmode=barmode,
+                ),
             )
             return new_fig
 
     @app.callback(
-        Output('stacked-view-checkbox-div', 'style'),
-        Input('chart-type-dropdown', 'value'),
+        Output("stacked-view-checkbox-div", "style"),
+        Input("chart-type-dropdown", "value"),
     )
     def toggle_stacked_view_visibility(selected_chart_type):
-        if selected_chart_type == 'Balkendiagramm':
-            return {'width': '20%', 'display': 'inline-block', 'marginLeft': '10px'}
+        if selected_chart_type == "Balkendiagramm":
+            return {"width": "20%", "display": "inline-block", "marginLeft": "10px"}
         else:
-            return {'display': 'none'}
+            return {"display": "none"}
 
     app.run_server(debug=False)

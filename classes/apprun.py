@@ -1,8 +1,9 @@
-import app
+"""Apprun Function"""
 from collections import defaultdict
+import app
 from classes.data_processor import DataProcessor
 
-def apprun(dataConsumption, dataMeter):
+def apprun(data_consumption, data_meter):
     """
     Processes consumption and meter data for specified sensor IDs and runs the Dash app.
 
@@ -46,33 +47,29 @@ def apprun(dataConsumption, dataMeter):
             year_totals[date.year] += volume
 
         return {
-            'time_series_data': dict(time_series_data),
-            'day_totals': dict(day_totals),
-            'month_totals': dict(month_totals),
-            'year_totals': dict(year_totals)
+            "time_series_data": dict(time_series_data),
+            "day_totals": dict(day_totals),
+            "month_totals": dict(month_totals),
+            "year_totals": dict(year_totals),
         }
 
     for sensor_id in sensor_ids:
-        sensor_data = data_processor.get_data(sensor_id, dataConsumption)
+        sensor_data = data_processor.get_data(sensor_id, data_consumption)
 
         if not sensor_data:
             print(f"No data found for {sensor_id}.")
             continue
 
         entries = [
-            entry
-            for consumption_data in sensor_data
-            for entry in consumption_data.data
+            entry for consumption_data in sensor_data for entry in consumption_data.data
         ]
 
         aggregated_data = aggregate_entries(entries)
 
         consumption_data_per_id[sensor_id] = aggregated_data
 
-    filtered_meter_data = data_processor.filter_meter_data(dataMeter)
-    grouped_meter_data = data_processor.group_meter_data_by_month(
-        filtered_meter_data
-    )
+    filtered_meter_data = data_processor.filter_meter_data(data_meter)
+    grouped_meter_data = data_processor.group_meter_data_by_month(filtered_meter_data)
 
     for sensor_id in sensor_ids:
         dates = []
@@ -90,13 +87,8 @@ def apprun(dataConsumption, dataMeter):
                     niedertarif_values.append(reading.lowcost)
 
         sorted_data = sorted(
-            zip(
-                dates,
-                totaltarif_values,
-                hochtarif_values,
-                niedertarif_values
-            ),
-            key=lambda x: x[0]
+            zip(dates, totaltarif_values, hochtarif_values, niedertarif_values),
+            key=lambda x: x[0],
         )
 
         if sorted_data:
@@ -104,7 +96,7 @@ def apprun(dataConsumption, dataMeter):
                 dates_sorted,
                 totaltarif_values_sorted,
                 hochtarif_values_sorted,
-                niedertarif_values_sorted
+                niedertarif_values_sorted,
             ) = zip(*sorted_data)
         else:
             dates_sorted = []
@@ -113,11 +105,10 @@ def apprun(dataConsumption, dataMeter):
             niedertarif_values_sorted = []
 
         meter_data_per_id[sensor_id] = {
-            'dates': dates_sorted,
-            'totaltarif_values': totaltarif_values_sorted,
-            'hochtarif_values': hochtarif_values_sorted,
-            'niedertarif_values': niedertarif_values_sorted
+            "dates": dates_sorted,
+            "totaltarif_values": totaltarif_values_sorted,
+            "hochtarif_values": hochtarif_values_sorted,
+            "niedertarif_values": niedertarif_values_sorted,
         }
-
 
     app.run_dash_app(consumption_data_per_id, meter_data_per_id)

@@ -1,5 +1,5 @@
-# Import Packages
-from datetime import datetime, timedelta
+"""ConsumptionEntry & ConsumtionData Class"""
+from datetime import datetime
 
 class ConsumptionEntry:
     """Represents a single consumption entry with volume and timestamp."""
@@ -66,7 +66,8 @@ class ConsumptionData:
             date (datetime): The date for which to retrieve the consumption entry.
 
         Returns:
-            ConsumptionEntry: The consumption entry for the specified date, or None if no entry exists.
+            ConsumptionEntry: The consumption entry for the specified date,
+            or None if no entry exists.
         """
         for entry in self.data:
             if entry.timestamp == date:
@@ -91,7 +92,8 @@ class ConsumptionData:
     def __str__(self):
         """
         Returns:
-            str: A string showing the document ID, the date range, and the list of consumption entries.
+            str: A string showing the document ID, the date range,
+                and the list of consumption entries.
         """
         entries_str = "\n".join(str(entry) for entry in self.data)
         return (f"ConsumptionData(Document ID: {self.document_id}, "

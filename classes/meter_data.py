@@ -54,7 +54,8 @@ class MeterData:
             obis (str): The OBIS code whose reading needs to be retrieved.
 
         Returns:
-            MeterEntry: The value of the reading associated with the OBIS code. Returns None if the OBIS code is not found.
+            MeterEntry: The value of the reading associated with the OBIS code.
+            Returns None if the OBIS code is not found.
         """
         return self.data.get(obis)
 
