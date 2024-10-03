@@ -104,7 +104,7 @@ def apprun(dataConsumption, dataMeter):
                 webbrowser.open_new('http://127.0.0.1:8050/')
 
         # Run the Dash app and open the browser after ensuring data is ready
-        app.run_dash_app(consumption_data_per_id, meter_data_per_id, cost_type_callback)
+        app.run_dash_app(consumption_data_per_id, meter_data_per_id)
         open_browser()
     else:
         print("Data processing failed or no data available. The browser will not be opened.")
