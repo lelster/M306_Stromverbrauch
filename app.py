@@ -1,4 +1,4 @@
-"""# app.py"""
+# app.py
 import datetime
 import dash
 from dash import dcc, html
