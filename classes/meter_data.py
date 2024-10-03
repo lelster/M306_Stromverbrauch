@@ -21,7 +21,7 @@ class MeterData:
         Returns:
             None
         """
-        self.data[obis] = value #round(value, 3)
+        self.data[obis] = value
 
     def get_reading(self, obis: str) -> float:
         """
