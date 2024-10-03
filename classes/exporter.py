@@ -49,7 +49,7 @@ class Exporter:
 
     @staticmethod
     def export_to_json(file_path: str, obiscode: str, consumption_data: list[ConsumptionData], meter_data: list[MeterData]) -> bool:
-        """Export consumption and meter data to JSON files."""
+        """Export consumption and meter data to JSON files in the required format."""
         try:
             timestamp_dir = datetime.now().strftime('%Y_%m_%d(%H.%M.%S)')
             full_path = os.path.join(file_path, timestamp_dir)
@@ -59,18 +59,41 @@ class Exporter:
             consumption_file_path = os.path.join(full_path, "consumption_data.json")
             meter_file_path = os.path.join(full_path, "meter_data.json")
 
-            with open(meter_file_path, "w+") as file:
-                json.dump([x.__dict__ for x in meter_data], file, default=Exporter.datetime_converter, indent=4)
+            # Prepare the consumption data in the required format
+            consumption_data_formatted = [
+                {
+                    "sensorId": data.document_id,
+                    "data": [
+                        {"ts": str(int(entry.timestamp.timestamp())), "value": entry.volume}
+                        for entry in data.data if data.document_id.lower() == obiscode.lower()
+                    ]
+                }
+                for data in consumption_data
+            ]
+
+            # Prepare the meter data in the required format
+            meter_data_formatted = [
+                {
+                    "sensorId": obis_code,
+                    "data": [
+                        {"ts": str(int(meter.timestamp.timestamp())), "value": reading.totalcost}
+                    ]
+                }
+                for meter in meter_data
+                for obis_code, reading in meter.data.items()
+                if obis_code.lower() == obiscode.lower()
+            ]
 
             with open(consumption_file_path, "w+") as file:
-                json.dump([x.to_dict() for x in consumption_data], file, indent=4)
+                json.dump(consumption_data_formatted, file, indent=4)
+
+            with open(meter_file_path, "w+") as file:
+                json.dump(meter_data_formatted, file, indent=4)
 
             return True
         except Exception as e:
             print(f"Error writing JSON files: {e}")
             return False
-
-
 
 if __name__ == "__main__":
     pass

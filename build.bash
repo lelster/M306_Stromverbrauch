@@ -1,0 +1,1 @@
+pyinstaller --noconfirm --onefile --console --name "VisualisierungVerbrauchsdatenApp" --add-data "C:\Users\KSH\Downloads\M306\M306_Stromverbrauch\app.py;." --add-data "C:\Users\KSH\Downloads\M306\M306_Stromverbrauch\classes;classes/" --hidden-import "customtkinter" --hidden-import "plotly" --hidden-import "dash"  "C:\Users\KSH\Downloads\M306\M306_Stromverbrauch\main.py"

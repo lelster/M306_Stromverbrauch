@@ -238,7 +238,3 @@ class FileReader:
         except Exception as e:
             print(f"An error occurred while parsing the file {filepath}: {e}")
             return None
-
-if __name__ == "__main__":
-    data: MeterData = FileReader().read_esl_file("C:\\Users\\KSH\\Downloads\\M306\\M306_Stromverbrauch\\data\\public\\ESL-Files\\EdmRegisterWertExport_20190131_eslevu_20190322160349.xml")
-    print(data)
