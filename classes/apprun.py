@@ -1,8 +1,6 @@
 import app
 from collections import defaultdict
 from classes.data_processor import DataProcessor
-from collections import defaultdict
-from classes.data_processor import DataProcessor
 
 def apprun(dataConsumption, dataMeter):
     """
@@ -12,12 +10,9 @@ def apprun(dataConsumption, dataMeter):
         dataConsumption: The consumption data to process.
         dataMeter: The meter data to process.
     """
-    # Initialize DataProcessor
     data_processor = DataProcessor()
-    # List of IDs we are interested in
     sensor_ids = ["ID742", "ID735"]
 
-    # Dictionaries to store data for each ID
     consumption_data_per_id = {}
     meter_data_per_id = {}
 
@@ -40,18 +35,14 @@ def apprun(dataConsumption, dataMeter):
             timestamp = entry.timestamp
             volume = entry.volume
 
-            # Time series data (15-minute intervals)
             time_series_data[timestamp] += volume
 
-            # Day totals
             date = timestamp.date()
             day_totals[date] += volume
 
-            # Month totals
             year_month = (date.year, date.month)
             month_totals[year_month] += volume
 
-            # Year totals
             year_totals[date.year] += volume
 
         return {
@@ -61,37 +52,28 @@ def apprun(dataConsumption, dataMeter):
             'year_totals': dict(year_totals)
         }
 
-    # Process consumption data
     for sensor_id in sensor_ids:
         sensor_data = data_processor.get_data(sensor_id, dataConsumption)
 
-        # Check if data is available
         if not sensor_data:
             print(f"No data found for {sensor_id}.")
             continue
 
-        # Collect all entries
         entries = [
             entry
             for consumption_data in sensor_data
             for entry in consumption_data.data
         ]
 
-        # Aggregate data
         aggregated_data = aggregate_entries(entries)
 
-        # Store the aggregated data for this ID
         consumption_data_per_id[sensor_id] = aggregated_data
 
-    # Process meter data
-    # Filter meter data to eliminate duplicates
     filtered_meter_data = data_processor.filter_meter_data(dataMeter)
-    # Group meter data by month
     grouped_meter_data = data_processor.group_meter_data_by_month(
         filtered_meter_data
     )
 
-    # Prepare data for each sensor ID
     for sensor_id in sensor_ids:
         dates = []
         totaltarif_values = []
@@ -107,7 +89,6 @@ def apprun(dataConsumption, dataMeter):
                     hochtarif_values.append(reading.highcost)
                     niedertarif_values.append(reading.lowcost)
 
-        # Sort the dates and corresponding values
         sorted_data = sorted(
             zip(
                 dates,
@@ -138,5 +119,5 @@ def apprun(dataConsumption, dataMeter):
             'niedertarif_values': niedertarif_values_sorted
         }
 
-    # Start the Dash app, passing the data
+
     app.run_dash_app(consumption_data_per_id, meter_data_per_id)
