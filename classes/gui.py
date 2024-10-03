@@ -43,7 +43,7 @@ class Gui():
         self.label = ctk.CTkLabel(self.root, text="Exportformat wählen:")
         self.label.pack(pady=(10, 5))
 
-        self.format_dropdown = ctk.CTkComboBox(self.root, state="readonly", values=["csv", "json"], variable=self.export_format_var)
+        self.format_dropdown = ctk.CTkComboBox(self.root, state="readonly", values=["csv", "JSON"], variable=self.export_format_var)
         self.format_dropdown.pack(pady=5)
 
         self.root.mainloop()
