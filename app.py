@@ -1,10 +1,10 @@
-# app.py
-
+"""# app.py"""
+import datetime
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
-import datetime
+
 
 # Define global variables to store data
 consumption_data_per_id = {}

@@ -78,7 +78,7 @@ def apprun(dataConsumption, dataMeter):
             for meter_data in meter_data_list:
                 if sensor_id in meter_data.data:
                     dates.append(meter_data.timestamp)
-                    values.append(meter_data.get_reading(sensor_id))
+                    values.append(meter_data.get_reading(sensor_id).totalcost)
         # Sort the dates and values
         sorted_pairs = sorted(zip(dates, values), key=lambda x: x[0])
         dates_sorted, values_sorted = zip(*sorted_pairs) if sorted_pairs else ([], [])
