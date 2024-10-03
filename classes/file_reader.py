@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
 # Import Local Classes
-from classes.meter_data import MeterData
+from classes.meter_data import MeterData, MeterEntry
 from classes.consumtion_data import ConsumptionEntry, ConsumptionData
 
 class FileReader:
@@ -75,7 +75,7 @@ class FileReader:
 
             meter_data = MeterData(end_date)
 
-            reading_data: dict[str, float] = {"ID742": 0.000, "ID735": 0.000}
+            reading_data: dict[str, MeterEntry] = {"ID742": MeterEntry(), "ID735": MeterEntry()}
 
             value_rows = time_period_elem.findall('ValueRow')
             if not value_rows:
@@ -92,8 +92,14 @@ class FileReader:
                 sensor_id = obis_id_codes.get(obis)
                 if sensor_id is not None:
                     if status == 'V':
+                        if reading_data[sensor_id] == None:
+                            reading_data[sensor_id] = MeterEntry()
                         value = float(value_str)
-                        reading_data[sensor_id] += value
+                        if obis.endswith(".1"):
+                            reading_data[sensor_id].highcost = value
+                        elif obis.endswith(".2"):
+                            reading_data[sensor_id].lowcost = value
+                        reading_data[sensor_id].totalcost += value
                     else:
                         raise ValueError(f"Obis has invalid data; {filepath}; {obis}")
 
@@ -232,3 +238,7 @@ class FileReader:
         except Exception as e:
             print(f"An error occurred while parsing the file {filepath}: {e}")
             return None
+
+if __name__ == "__main__":
+    data: MeterData = FileReader().read_esl_file("C:\\Users\\KSH\\Downloads\\M306\\M306_Stromverbrauch\\data\\public\\ESL-Files\\EdmRegisterWertExport_20190131_eslevu_20190322160349.xml")
+    print(data)
