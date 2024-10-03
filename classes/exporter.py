@@ -16,7 +16,7 @@ class Exporter:
             return o.isoformat()
 
     @staticmethod
-    def export_to_csv(file_path: str, consumption_data: list[ConsumptionData], meter_data: list[MeterData]) -> bool:
+    def export_to_csv(file_path: str, obiscode: str, consumption_data: list[ConsumptionData], meter_data: list[MeterData]) -> bool:
         """Export consumption and meter data to CSV files."""
         try:
             timestamp_dir = datetime.now().strftime('%Y_%m_%d(%H.%M.%S)')
@@ -25,26 +25,22 @@ class Exporter:
                 os.makedirs(full_path)
 
             consumption_file_path = os.path.join(full_path, "consumption_data.csv")
-            with open(consumption_file_path, "w", newline="") as file:
+            with open(consumption_file_path, "w+", newline="") as file:
                 writer = csv.writer(file, delimiter=';')
-                writer.writerow(["document_id", "start_date", "end_date", "timestamp", "volume"])
+                writer.writerow(["timestamp", "value"])
                 for data in consumption_data:
                     for entry in data.data:
-                        writer.writerow([data.document_id,
-                                         data.start_date.isoformat(),
-                                         data.end_date.isoformat(),
-                                         entry.timestamp.isoformat(),
-                                         entry.volume])
+                        if data.document_id.lower() == obiscode.lower():
+                            writer.writerow([entry.timestamp.timestamp(), entry.volume])
 
             meter_file_path = os.path.join(full_path, "meter_data.csv")
-            with open(meter_file_path, "w", newline="") as file:
+            with open(meter_file_path, "w+", newline="") as file:
                 writer = csv.writer(file, delimiter=';')
-                writer.writerow(["timestamp", "obis_code", "reading"])
+                writer.writerow(["timestamp", "value"])
                 for meter in meter_data:
                     for obis_code, reading in meter.data.items():
-                        writer.writerow([str(int(meter.timestamp.timestamp())),
-                                         obis_code,
-                                         reading])
+                        if obis_code.lower() == obiscode.lower():
+                            writer.writerow([str(int(meter.timestamp.timestamp())), reading.totalcost])
 
             return True
         except Exception as e:
@@ -52,7 +48,7 @@ class Exporter:
             return False
 
     @staticmethod
-    def export_to_json(file_path: str, consumption_data: list[ConsumptionData], meter_data: list[MeterData]) -> bool:
+    def export_to_json(file_path: str, obiscode: str, consumption_data: list[ConsumptionData], meter_data: list[MeterData]) -> bool:
         """Export consumption and meter data to JSON files."""
         try:
             timestamp_dir = datetime.now().strftime('%Y_%m_%d(%H.%M.%S)')
@@ -63,10 +59,10 @@ class Exporter:
             consumption_file_path = os.path.join(full_path, "consumption_data.json")
             meter_file_path = os.path.join(full_path, "meter_data.json")
 
-            with open(meter_file_path, "w") as file:
+            with open(meter_file_path, "w+") as file:
                 json.dump([x.__dict__ for x in meter_data], file, default=Exporter.datetime_converter, indent=4)
 
-            with open(consumption_file_path, "w") as file:
+            with open(consumption_file_path, "w+") as file:
                 json.dump([x.to_dict() for x in consumption_data], file, indent=4)
 
             return True

@@ -20,7 +20,7 @@ class Gui():
 
         self.root = ctk.CTk()
         self.root.title("Export und Visualisierung")
-        self.root.geometry("400x300")
+        self.root.geometry("400x400")
         self.root.eval('tk::PlaceWindow . center')
 
         self.choice = None
@@ -36,7 +36,11 @@ class Gui():
         self.export_button = ctk.CTkButton(self.root, text='Exportieren', command=self.choose_export)
         self.export_button.pack(pady=(10, 10))
 
-
+        self.obis_var = ctk.StringVar(value="ID742")
+        self.obis_label = ctk.CTkLabel(self.root, text="Sensor ID wählen:")
+        self.obis_label.pack(pady=(10, 5))
+        self.obis_dropdown = ctk.CTkComboBox(self.root, state="readonly", values=["ID735", "ID742"], variable=self.obis_var)
+        self.obis_dropdown.pack(pady=5)
 
         self.export_format_var = ctk.StringVar(value="csv")
 
@@ -56,7 +60,7 @@ class Gui():
         self.choice = 'export'
         self.filedialog = ctk.filedialog.askdirectory()
         self.export_format = self.export_format_var.get()
-        self.export(self.filedialog, self.export_format, self.dataConsumption, self.dataMeter)
+        self.export(self.filedialog, self.obis_var.get(), self.export_format, self.dataConsumption, self.dataMeter)
 
     def show_add_files_options(self):
         self.visualise_button.pack_forget()
@@ -100,13 +104,13 @@ class Gui():
         self.esl_button.pack_forget()
         self.back_button.place_forget()
 
-    def export(self, path: str, export_type: str, dataConsumption: list[ConsumptionData], dataMeter: list[MeterData]):
+    def export(self, path: str, obiscode: str, export_type: str, dataConsumption: list[ConsumptionData], dataMeter: list[MeterData]):
         exporter = Exporter()
         if export_type == 'csv':
-            exporter.export_to_csv(path, dataConsumption, dataMeter)
+            exporter.export_to_csv(path, obiscode, dataConsumption, dataMeter)
             print("csv exported")
         elif export_type == 'json':
-            exporter.export_to_json(path, dataConsumption, dataMeter)
+            exporter.export_to_json(path, obiscode, dataConsumption, dataMeter)
             print("json exported")
         else:
             print(f"Export type {export_type} is not supported.")
