@@ -1,15 +1,19 @@
+import tkinter
+
 import customtkinter as ctk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import os
 from classes.consumtion_data import ConsumptionData
 from classes.exporter import Exporter
 from classes.meter_data import MeterData
+import classes.apprun as app
 
 
 class Gui():
     """GUI zur Auswahl von Visualisierung oder Export mit Formatwahl"""
 
     def __init__(self, dataConsumption, dataMeter):
+        print("Gui initialized")
         self.back_button = None
         self.esl_button = None
         self.sdat_button = None
@@ -53,12 +57,13 @@ class Gui():
         self.root.mainloop()
 
     def choose_visualise(self):
-        self.choice = 'visualise'
-        self.root.destroy()
+        app.apprun(self.dataConsumption, self.dataMeter)
 
     def choose_export(self):
-        self.choice = 'export'
-        self.filedialog = ctk.filedialog.askdirectory()
+        self.filedialog = tkinter.filedialog.askdirectory()
+        if not self.filedialog:
+            messagebox.showwarning("No Directory", "Please select a directory to export.")
+            return
         self.export_format = self.export_format_var.get()
         self.export(self.filedialog, self.obis_var.get(), self.export_format, self.dataConsumption, self.dataMeter)
 
