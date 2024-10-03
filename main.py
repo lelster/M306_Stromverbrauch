@@ -13,7 +13,7 @@ def read():
 
 def run_flask():
     """Run Flask/Dash app in a separate process."""
-    data_consumption, data_meter = read()  # Initialize inside the Flask process
+    data_consumption, data_meter = read()
     apprun(data_consumption, data_meter)
 
 def main():
@@ -21,15 +21,9 @@ def main():
     print("Loading data...")
 
     data_consumption, data_meter = read()
-
-    # Start Flask/Dash in a separate process (without passing data)
     flask_process = multiprocessing.Process(target=run_flask)
     flask_process.start()
-
-    # Run GUI on the main thread
     Gui(data_consumption, data_meter)
-
-    # Wait for Flask process to finish
     flask_process.join()
 
 if __name__ == "__main__":

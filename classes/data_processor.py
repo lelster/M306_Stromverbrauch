@@ -1,8 +1,7 @@
 """Class"""
-# Import Local Classes
 from datetime import datetime
 from classes.meter_data import MeterData
-from classes.consumtion_data import ConsumptionEntry, ConsumptionData
+from classes.consumtion_data import ConsumptionData
 from collections import defaultdict
 
 class DataProcessor:
@@ -48,7 +47,6 @@ class DataProcessor:
 
                 unique_readings = {}
                 for obis_code, value in data.data.items():
-                    # Use the OBIS code as a unique key for meter readings
                     if obis_code not in unique_readings:
                         unique_readings[obis_code] = value
 
@@ -88,7 +86,6 @@ class DataProcessor:
         """
         time_data = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
-        # Filter data based on sensor_id
         new_data = DataProcessor.filter_data(sdat_data)
         combined_data = [data for data in new_data if data.document_id == sensor_id]
 
@@ -97,8 +94,6 @@ class DataProcessor:
                 year = entry.timestamp.strftime("%Y")  # Get year as string
                 month = entry.timestamp.strftime("%b")  # Get abbreviated month name
                 day = entry.timestamp.strftime("%d")  # Get day as string
-
-                # Store the 15-minute interval data (timestamp, volume) in the time_data dictionary
                 time_data[year][month][day].append((entry.timestamp, entry.volume))
 
         return dict(time_data)
@@ -106,10 +101,9 @@ class DataProcessor:
     @staticmethod
     def group_meter_data_by_month(meter_data: list[MeterData]) -> dict[tuple[int, int], list[MeterData]]:
         """Groups MeterData by year and month after filtering duplicates."""
-        # Filter duplicates before grouping
         filtered_meter_data = DataProcessor.filter_meter_data(meter_data)
 
-        grouped_data = defaultdict(list)  # Create a dictionary with (year, month) as keys
+        grouped_data = defaultdict(list)
 
         for data in filtered_meter_data:
             year = data.timestamp.year

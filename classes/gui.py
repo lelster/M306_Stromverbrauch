@@ -6,7 +6,6 @@ import os
 from classes.consumtion_data import ConsumptionData
 from classes.exporter import Exporter
 from classes.meter_data import MeterData
-from classes.apprun import apprun
 
 
 class Gui:

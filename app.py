@@ -1,12 +1,9 @@
-# app.py
-
 import datetime
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 
-# Define global variables to store data
 consumption_data_per_id = {}
 meter_data_per_id = {}
 
@@ -15,20 +12,12 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
     consumption_data_per_id = consumption_data_arg
     meter_data_per_id = meter_data_arg
 
-    # Create the Dash app
     app = dash.Dash(__name__)
-
-    # List of sensor IDs
     sensor_ids = list(consumption_data_per_id.keys())
-
-    # Set initial sensor ID
     initial_sensor_id = sensor_ids[0]
-
-    # Chart types
     chart_types = ['Liniendiagramm', 'Balkendiagramm']
     initial_chart_type = 'Liniendiagramm'
 
-    # Prepare initial data for the initial sensor ID and chart type
     def prepare_initial_data(sensor_id, chart_type):
         if chart_type == 'Liniendiagramm':
             sensor_data = consumption_data_per_id[sensor_id]
@@ -44,10 +33,8 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
             niedertarif_values = meter_data_per_id[sensor_id]['niedertarif_values']
             return dates, totaltarif_values, hochtarif_values, niedertarif_values
 
-    # Prepare initial data
     x_data, y_data = prepare_initial_data(initial_sensor_id, initial_chart_type)
 
-    # Initial figure
     if initial_chart_type == 'Liniendiagramm':
         fig = go.Figure(
             data=[go.Scatter(x=x_data, y=y_data, mode='lines+markers')],
@@ -59,7 +46,6 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
         )
     else:
         dates, totaltarif_values, hochtarif_values, niedertarif_values = prepare_initial_data(initial_sensor_id, initial_chart_type)
-        # Since initial stacked view is off, show Totaltarif
         fig = go.Figure(
             data=[go.Bar(x=dates, y=totaltarif_values, name='Totaltarif')],
             layout=go.Layout(
@@ -103,7 +89,7 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
         dcc.Graph(
             id='main-graph',
             figure=fig,
-            config={'scrollZoom': True}  # Aktivieren scroll zooming
+            config={'scrollZoom': True}
         ),
     ])
 
@@ -128,7 +114,6 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
             x_years = [datetime.datetime(year, 1, 1) for year in years]
             year_values = [year_totals[year] for year in years]
 
-            # If relayoutData is None or doesn't have 'xaxis.range[0]', return the initial figure
             if relayoutData is None or 'xaxis.range[0]' not in relayoutData:
                 new_fig = go.Figure(
                     data=[go.Scatter(x=x_years, y=year_values, mode='lines+markers')],
@@ -140,7 +125,6 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 )
                 return new_fig
 
-            # Get the current x-axis range
             x_min_str = relayoutData.get('xaxis.range[0]', None)
             x_max_str = relayoutData.get('xaxis.range[1]', None)
             if x_min_str is None or x_max_str is None:
@@ -156,12 +140,9 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
 
             x_min = datetime.datetime.fromisoformat(x_min_str)
             x_max = datetime.datetime.fromisoformat(x_max_str)
-
-            # Calculate range in days
             range_days = (x_max - x_min).days
 
             if range_days > 730:
-                # Show yearly data
                 new_fig = go.Figure(
                     data=[go.Scatter(x=x_years, y=year_values, mode='lines+markers')],
                     layout=go.Layout(
@@ -173,12 +154,10 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 )
                 return new_fig
             elif 60 < range_days <= 730:
-                # Show monthly data
                 months = sorted(month_totals.keys())
                 x_months = [datetime.datetime(year, month, 1) for year, month in months]
                 month_values = [month_totals[(year, month)] for year, month in months]
 
-                # Filter months within the x-axis range
                 x_months_filtered = []
                 month_values_filtered = []
                 for x, y in zip(x_months, month_values):
@@ -196,12 +175,10 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 )
                 return new_fig
             elif 2 < range_days <= 60:
-                # Show daily data
                 days = sorted(day_totals.keys())
                 x_days = [datetime.datetime.combine(date, datetime.time()) for date in days]
                 day_values = [day_totals[date] for date in days]
 
-                # Filter days within the x-axis range
                 x_days_filtered = []
                 day_values_filtered = []
                 for x, y in zip(x_days, day_values):
@@ -220,7 +197,6 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 )
                 return new_fig
             elif range_days <= 2:
-                # Show 15-minute data
                 timestamps = sorted(time_series_data.keys())
                 x_times = [ts for ts in timestamps if x_min <= ts <= x_max]
                 y_values = [time_series_data[ts] for ts in x_times]
@@ -237,8 +213,6 @@ def run_dash_app(consumption_data_arg, meter_data_arg):
                 return new_fig
             else:
                 return current_fig
-
-            # Handle zooming and panning here (omitted for brevity)
 
         elif selected_chart_type == 'Balkendiagramm':
             dates = meter_data_per_id[selected_sensor_id]['dates']
